@@ -5,7 +5,13 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "local-development-only-change-before-deploy")
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,testserver").split(",") if host.strip()]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,testserver").split(",")
+    if host.strip()
+]
+if os.environ.get("RAILWAY_PUBLIC_DOMAIN"):
+    ALLOWED_HOSTS.append(os.environ["RAILWAY_PUBLIC_DOMAIN"])
 
 INSTALLED_APPS = [
     "django.contrib.admin",
