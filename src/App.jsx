@@ -32,6 +32,7 @@ import betasynImage from "./images/Container (11).png";
 import pregaImage from "./images/Container (12).png";
 import pregaForteImage from "./images/Container (13).png";
 import brandLogo from "./images/logo.png";
+import qualityBackgroundImage from "./images/QualityCommitmentSection.png";
 
 const productImages = {
   "neurosyn-m": neurosynImage,
@@ -77,6 +78,8 @@ const initialProducts = [
   { id: "pregasyn-forte", name: "Pregasyn Forte", description: "Methylcobalamin 750 mcg + Pregabalin 50 mg", category: "Neurological Health" },
 ];
 
+const emptyInquiryForm = { name: "", email: "", phone: "", company: "", topic: "", message: "" };
+
 function formatProductCardName(product) {
   const name = product.name.toUpperCase();
   const trademarkPlacements = {
@@ -92,40 +95,161 @@ function formatProductCardName(product) {
   return placement ? name.replace(placement[0], placement[1]) : `${name}™`;
 }
 
-const principles = [
-  { icon: CircleArrowRight, title: "Commitment to Quality", text: "Quality guides every product we bring to market." },
-  { icon: FileText, title: "Product Information Transparency", text: "Clear, accurate compositions for every formulation." },
-  { icon: BadgeCheck, title: "Consistent Brand Standards", text: "A uniform standard of presentation across our range." },
-  { icon: UsersRound, title: "Healthcare Professional Support", text: "Responsive help for professionals and partners." },
-];
+const pointIcons = {
+  quality: CircleArrowRight,
+  transparency: FileText,
+  standards: BadgeCheck,
+  support: UsersRound,
+  care: HeartPulse,
+  clarity: ClipboardCheck,
+  engagement: Dna,
+};
 
-const commitments = [
-  "Commitment to quality",
-  "Product information transparency",
-  "Consistent brand standards",
-  "Healthcare professional support",
-];
+const initialSiteContent = {
+  nav_links: [
+    { label: "Home", href: "#home" },
+    { label: "About us", href: "#about" },
+    { label: "products", href: "#products" },
+    { label: "Why Choose Us", href: "#why-synexta" },
+    { label: "Quality Assurance", href: "#quality" },
+    { label: "Contact", href: "#contact" },
+  ],
+  nav_cta_label: "Explore Products",
+  nav_cta_href: "#products",
+  about_eyebrow: "ABOUT SYNEXTA PHARMA",
+  about_title: "Committed to quality. Focused on care.",
+  about_body: "Synexta Pharma offers a range of pharmaceutical formulations designed to support diverse healthcare needs. Our approach is built on quality, transparency and a genuine commitment to trusted healthcare solutions.",
+  about_points: [
+    { icon: "care", title: "Quality-Focused Approach", text: "Every Formulation is presented with care, clarity and consistency." },
+    { icon: "clarity", title: "Reliable Pharmaceutical solutions", text: "A focused portfolio built around everyday healthcare needs." },
+    { icon: "engagement", title: "Healthcare-Centered Commitment", text: "We work along side healthcare proffessionals for better patient care." },
+  ],
+  quality_eyebrow: "Quality Assurance",
+  quality_points: [
+    { icon: "quality", title: "Commitment to Quality", text: "Quality guides every product we bring to market." },
+    { icon: "transparency", title: "Product Information Transparency", text: "Clear, accurate compositions for every formulation." },
+    { icon: "standards", title: "Consistent Brand Standards", text: "A uniform standard of presentation across our range." },
+    { icon: "support", title: "Healthcare Professional Support", text: "Responsive help for professionals and partners." },
+  ],
+  commitments_title: "OUR COMMITMENTS",
+  commitments_subtitle: "Quality at the Heart of Every Formulation",
+  commitments_points: [
+    { icon: "quality", title: "Commitment to quality", text: "Quality guides every product we bring to market." },
+    { icon: "transparency", title: "Product information transparency", text: "Clear, accurate compositions for every formulation." },
+    { icon: "standards", title: "Consistent brand standards", text: "A uniform standard of presentation across our range." },
+    { icon: "support", title: "Healthcare professional support", text: "Responsive help for professionals and partners." },
+  ],
+  why_eyebrow: "WHY CHOOSE US",
+  why_title: "Why choose Synexta Pharma?",
+  why_body: "We keep things simple: dependable products, clear information and a people-first approach.",
+  why_points: [
+    { icon: "care", title: "Quality first", text: "Formulation selevted and presented with a focus on quality." },
+    { icon: "clarity", title: "Product Clarity", text: "Exact names, strengths and compositions- nothing hidden." },
+    { icon: "engagement", title: "Responsible communication", text: "Accurate informationwithout exaggerated claims" },
+    { icon: "engagement", title: "Proffessional Engagement", text: "A team that listens to healthcare proffessionals and partners" },
+  ],
+  footer_tagline: "Quality Medicines. Trusted Care.",
+  footer_quick_links: [
+    { label: "Home", href: "#home" },
+    { label: "About Us", href: "#about" },
+    { label: "Products", href: "#products" },
+    { label: "Our Expertise", href: "#explore" },
+    { label: "Quality Assurance", href: "#quality" },
+    { label: "Contact", href: "#contact" },
+  ],
+  footer_products_heading: "Products",
+  footer_product_links: [
+    { label: "NEUROSYN-M™", href: "#contact" },
+    { label: "TRYPSYN-R™", href: "#about" },
+    { label: "BETASYN™ 8/16", href: "#about" },
+    { label: "PREGASYN™", href: "#about" },
+    { label: "PANTOSYN™ 20/40", href: "#contact" },
+    { label: "CEFIXA™ 200", href: "#about" },
+    { label: "PREGASYN™ FORTE", href: "#about" },
+  ],
+  footer_copyright: "© 2026 Synexta Pharma. All rights reserved.",
+  footer_legal_links: [{ label: "Privacy Policy" }, { label: "Terms and Conditions" }],
+};
 
-function Brand({ light = false }) {
+function mergeSiteContent(data) {
+  const content = { ...initialSiteContent, ...data };
+  for (const field of [
+    "nav_links",
+    "about_points",
+    "quality_points",
+    "commitments_points",
+    "why_points",
+    "footer_quick_links",
+    "footer_product_links",
+    "footer_legal_links",
+  ]) {
+    content[field] = Array.isArray(data[field])
+      ? data[field].filter((item) => item && typeof item === "object" && !Array.isArray(item))
+      : initialSiteContent[field];
+  }
+  return content;
+}
+
+function SectionPoints({ points }) {
+  return (
+    <div className="difference-points">
+      {points.map((point, index) => {
+        const Icon = pointIcons[point.icon] || CircleArrowRight;
+        return (
+          <div className="difference-point" key={`${point.title || "point"}-${index}`}>
+            <span className="difference-icon"><Icon size={18} /></span>
+            <div><h3>{point.title}</h3><p>{point.text}</p></div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function PrincipleCards({ points }) {
+  return (
+    <div className="principle-grid">
+      {points.map((point, index) => {
+        const Icon = pointIcons[point.icon] || CircleArrowRight;
+        return (
+          <article className="principle" key={`${point.title || "point"}-${index}`} tabIndex={0}>
+            <span className="principle-icon"><Icon size={18} strokeWidth={2} /></span>
+            <h3>{point.title}</h3>
+            <p>{point.text}</p>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function Brand({ light = false, image = brandLogo }) {
   return (
     <a className={`brand${light ? " brand-light" : ""}`} href="#home" aria-label="Synexta Pharma home">
-      <img className="brand-logo" src={brandLogo} alt="Synexta Pharma" />
+      <img className="brand-logo" src={image} alt="Synexta Pharma" />
     </a>
   );
 }
 
 function App() {
   const [products, setProducts] = useState(initialProducts);
+  const [siteContent, setSiteContent] = useState(initialSiteContent);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [orderProduct, setOrderProduct] = useState(null);
+  const [orderConfirmed, setOrderConfirmed] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("delivery");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [formState, setFormState] = useState({ name: "", email: "", phone: "", topic: "", message: "" });
+  const [formState, setFormState] = useState(emptyInquiryForm);
   const [submitState, setSubmitState] = useState({ status: "idle", message: "" });
 
   useEffect(() => {
-    if (!selectedProduct) return undefined;
+    if (!selectedProduct && !orderProduct) return undefined;
 
     const closeOnEscape = (event) => {
-      if (event.key === "Escape") setSelectedProduct(null);
+      if (event.key === "Escape") {
+        setSelectedProduct(null);
+        setOrderProduct(null);
+      }
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", closeOnEscape);
@@ -133,7 +257,21 @@ function App() {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, [selectedProduct]);
+  }, [selectedProduct, orderProduct]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/content/", { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Website content is currently unavailable");
+        return response.json();
+      })
+      .then((data) => setSiteContent(mergeSiteContent(data)))
+      .catch((error) => {
+        if (error.name !== "AbortError") console.info("Showing the default website content.");
+      });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -157,6 +295,13 @@ function App() {
     document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
   }
 
+  function startOrder(product) {
+    setSelectedProduct(null);
+    setPaymentMethod("delivery");
+    setOrderConfirmed(false);
+    setOrderProduct(product);
+  }
+
   function updateField(event) {
     setFormState((current) => ({ ...current, [event.target.name]: event.target.value }));
     if (submitState.status !== "idle") setSubmitState({ status: "idle", message: "" });
@@ -171,13 +316,32 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formState),
       });
-      const data = await response.json();
+      const responseBody = await response.text();
+      let data;
+      if (!responseBody.trim()) {
+        throw new Error(`The server returned an empty response (HTTP ${response.status}). Your enquiry was not confirmed.`);
+      }
+      try {
+        data = JSON.parse(responseBody);
+      } catch {
+        throw new Error(`The server returned an invalid response (HTTP ${response.status}). Your enquiry was not confirmed.`);
+      }
       if (!response.ok) {
-        const detail = data.errors ? Object.values(data.errors).flat().join(" ") : data.error;
+        const detail = data && typeof data === "object"
+          ? data.errors ? Object.values(data.errors).flat().join(" ") : data.error
+          : "";
         throw new Error(detail || "We could not submit your message.");
       }
+      if (!data || typeof data.message !== "string" || !data.message) {
+        throw new Error("The server did not confirm your enquiry. Please try again.");
+      }
+      if (data.email_sent === false) {
+        setSubmitState({ status: "warning", message: data.message });
+        setFormState(emptyInquiryForm);
+        return;
+      }
       setSubmitState({ status: "success", message: data.message });
-      setFormState({ name: "", email: "", phone: "", topic: "", message: "" });
+      setFormState(emptyInquiryForm);
     } catch (error) {
       setSubmitState({ status: "error", message: error.message || "Unable to reach the server. Please try again." });
     }
@@ -189,24 +353,19 @@ function App() {
     <>
       <header className="site-header">
         <div className="header-inner">
-          <Brand />
+          <Brand image={siteContent.logo_image || brandLogo} />
           <button className="menu-toggle" type="button" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X size={21} /> : <Menu size={21} />}
           </button>
           <nav className={`main-nav${menuOpen ? " is-open" : ""}`} aria-label="Main navigation">
-            <a href="#home" onClick={closeMenu}>Home</a>
-            <a href="#about" onClick={closeMenu}>About us</a>
-            <a href="#products" onClick={closeMenu}>products</a>
-            <a href="#why-synexta" onClick={closeMenu}>Why Choose Us</a>
-            <a href="#quality" onClick={closeMenu}>Quality Assurance</a>
-            <a href="#contact" onClick={closeMenu}>Contact</a>
-            <a className="nav-contact" href="#products" onClick={closeMenu}>Explore Products <ArrowUpRight size={15} /></a>
+            {siteContent.nav_links.map((link, index) => <a href={link.href} onClick={closeMenu} key={`${link.label}-${index}`}>{link.label}</a>)}
+            <a className="nav-contact" href={siteContent.nav_cta_href} onClick={closeMenu}>{siteContent.nav_cta_label} <ArrowUpRight size={15} /></a>
           </nav>
         </div>
       </header>
 
       <main>
-        <section className="hero" id="home" style={{ "--hero-image": `url("${heroImage}")` }}>
+        <section className="hero" id="home" style={{ "--hero-image": `url("${siteContent.hero_image || heroImage}")` }}>
           <div className="hero-inner page-width">
             <div className="hero-copy">
               <span className="eyebrow hero-eyebrow"> TRUSTED PHARMACEUTICAL SOLUTIONS</span>
@@ -224,25 +383,13 @@ function App() {
         <section className="intro-section section-pad" id="about">
           <div className="intro-grid page-width">
             <div className="intro-image-wrap">
-              <img src={labImage} alt="Researcher working with a laboratory microscope" />
+              <img src={siteContent.about_image || labImage} alt="Researcher working with a laboratory microscope" />
             </div>
             <div className="intro-copy">
-              <span className="eyebrow">ABOUT SYNEXTA PHARMA</span>
-              <h2>Committed to quality. Focused on care.</h2>
-              <p className="body-lead">Synexta Pharma offers a range of pharmaceutical formulations designed to support diverse healthcare needs. Our approach is built on quality, transparency and a genuine commitment to trusted healthcare solutions.</p>
-            
-            <div className="difference-points">
-                {[
-                  [HeartPulse, "Quality-Focused Approach", "Every Formulation is presented with care, clarity and consistency."],
-                  [ClipboardCheck, "Reliable Pharmaceutical solutions", "A focused portfolio built around everyday healthcare needs."],
-                  [Dna, "Healthcare-Centered Commitment", "We work along side healthcare proffessionals for better patient care."],
-                ].map(([Icon, title, text]) => (
-                  <div className="difference-point" key={title}>
-                    <span className="difference-icon"><Icon size={18} /></span>
-                    <div><h3>{title}</h3><p>{text}</p></div>
-                  </div>
-                ))}
-              </div>
+              <span className="eyebrow">{siteContent.about_eyebrow}</span>
+              <h2>{siteContent.about_title}</h2>
+              <p className="body-lead">{siteContent.about_body}</p>
+              <SectionPoints points={siteContent.about_points} />
               </div>
           </div>
         </section>
@@ -258,7 +405,7 @@ function App() {
               {products.map((product, index) => (
                 <article className="product-card" key={product.id} style={{ "--card-index": index }}>
                   <div className="product-art">
-                    {productImages[product.id] ? <img src={productImages[product.id]} alt={`${product.name} product pack`} /> : <div className="product-placeholder"><FlaskConical size={36} /></div>}
+                    {product.image || productImages[product.id] ? <img src={product.image || productImages[product.id]} alt={`${product.name} product pack`} /> : <div className="product-placeholder"><FlaskConical size={36} /></div>}
                   </div>
                   <div className="product-info">
                     <span className="product-category">{product.category || "Pharmaceuticals"}</span>
@@ -273,72 +420,38 @@ function App() {
           </div>
         </section>
 
-        <section className="quality-section section-pad" id="quality">
+        <section className="quality-section section-pad" id="quality" style={{ "--quality-background-image": `url("${siteContent.quality_background_image || qualityBackgroundImage}")` }}>
           <div className="page-width">
             <div className="section-heading section-heading-light">
-              <span className="eyebrow">Quality Assurance</span>
+              <span className="eyebrow">{siteContent.quality_eyebrow}</span>
             </div>
-            <div className="principle-grid">
-              {commitments.map((commitment, index) => {
-                const { icon: Icon, text } = principles[index];
-                return (
-                  <article className="principle" key={commitment} tabIndex={0}>
-                    <span className="principle-icon"><Icon size={18} strokeWidth={2} /></span>
-                    <h3>{commitment}</h3>
-                    <p>{text}</p>
-                  </article>
-                );
-              })}
-            </div>
+            <PrincipleCards points={siteContent.quality_points} />
           </div>
         </section>
 
-        <section className="commitments-section section-pad" aria-labelledby="commitments-heading">
+        <section className="commitments-section section-pad" aria-labelledby="commitments-heading" style={{ "--quality-background-image": `url("${siteContent.quality_background_image || qualityBackgroundImage}")` }}>
           <div className="page-width">
-            <h2 className="commitments-heading" id="commitments-heading">OUR COMMITMENTS</h2>
-            <h2 className="commitments-subheading">Quality at the Heart of Every Formulation</h2>
-              <div className="principle-grid">
-                {commitments.map((commitment, index) => {
-                  const { icon: Icon, text } = principles[index];
-                  return (
-                    <article className="principle" key={commitment} tabIndex={0}>
-                      <span className="principle-icon"><Icon size={18} strokeWidth={2} /></span>
-                      <h3>{commitment}</h3>
-                      <p>{text}</p>
-                    </article>
-                  );
-                })}
-              </div>
+            <h2 className="commitments-heading" id="commitments-heading">{siteContent.commitments_title}</h2>
+            <h2 className="commitments-subheading">{siteContent.commitments_subtitle}</h2>
+            <PrincipleCards points={siteContent.commitments_points} />
           </div>
         </section>
 
         <section className="difference-section section-pad" id="why-synexta">
           <div className="difference-grid page-width">
             <div className="difference-copy">
-              <span className="eyebrow">WHY CHOOSE US</span>
-              <h2>Why choose Synexta Pharma?</h2>
-              <p className="body-lead">We keep things simple: dependable products, clear information and a people-first approach.</p>
-              <div className="difference-points">
-                {[
-                  [HeartPulse, "Quality first", "Formulation selevted and presented with a focus on quality."],
-                  [ClipboardCheck, "Product Clarity", "Exact names, strengths and compositions- nothing hidden."],
-                  [Dna, "Responsible communication", "Accurate informationwithout exaggerated claims"],
-                  [Dna, "Proffessional Engagement", "A team that listens to healthcare proffessionals and partners"],                
-                ].map(([Icon, title, text]) => (
-                  <div className="difference-point" key={title}>
-                    <span className="difference-icon"><Icon size={18} /></span>
-                    <div><h3>{title}</h3><p>{text}</p></div>
-                  </div>
-                ))}
-              </div>
+              <span className="eyebrow">{siteContent.why_eyebrow}</span>
+              <h2>{siteContent.why_title}</h2>
+              <p className="body-lead">{siteContent.why_body}</p>
+              <SectionPoints points={siteContent.why_points} />
             </div>
             <div className="difference-image">
-              <img src={researchImage} alt="Scientist carefully pipetting a sample in a laboratory" />
+              <img src={siteContent.why_image || researchImage} alt="Scientist carefully pipetting a sample in a laboratory" />
             </div>
           </div>
         </section>
 
-        <section className="contact-banner" style={{ "--contact-image": `url("${contactImage}")` }}>
+        <section className="contact-banner" style={{ "--contact-image": `url("${siteContent.contact_background_image || contactImage}")` }}>
           <div className="contact-banner-inner page-width">
             <span className="eyebrow">LET'S CONNECT</span>
             <h2>Let's Connect for Better Healthcare Solutions</h2>
@@ -369,7 +482,7 @@ function App() {
               </div>
               <div className="form-row">
                 <label>Phone Number <input name="phone" type="tel" autoComplete="tel" placeholder="+1 555 000 0000" value={formState.phone} onChange={updateField} maxLength={30} /></label>
-                <label>Company/Organization<input name="name" autoComplete="name" placeholder="Company name" value={formState.name} onChange={updateField} required maxLength={120} /></label>
+                <label>Company/Organization<input name="company" placeholder="Company name" value={formState.company} onChange={updateField} required maxLength={120} /></label>
               </div>
               <label>Enquiry Type
                 <select name="topic" value={formState.topic} onChange={updateField} required>
@@ -395,24 +508,25 @@ function App() {
 
       <footer className="site-footer">
         <div className="footer-main page-width">
-          <div className="footer-brand"><Brand light /><p>Quality Medicines. Trusted Care.</p></div>
-          <div className="footer-column"><span>Quick Links</span><a href="#home">Home</a><a href="#about">About Us</a><a href="#products">Products</a><a href="#explore">Our Expertise</a><a href="#quality">Quality Assurance</a><a href="#contact">Contact</a></div>
+          <div className="footer-brand"><Brand light image={siteContent.logo_image || brandLogo} /><p>{siteContent.footer_tagline}</p></div>
+          <div className="footer-column"><span>Quick Links</span>{siteContent.footer_quick_links.map((link, index) => <a href={link.href} key={`${link.label}-${index}`}>{link.label}</a>)}</div>
           <div className="footer-products">
-            <span>Products</span>
+            <span>{siteContent.footer_products_heading}</span>
             <div className="footer-products-links">
-              <a href="#contact">NEUROSYN-M™</a><a href="#about">TRYPSYN-R™</a><a href="#about">BETASYN™ 8/16</a><a href="#about">PREGASYN™</a><a href="#contact">PANTOSYN™ 20/40</a><a href="#about">CEFIXA™ 200</a><a href="#about">PREGASYN™ FORTE</a>
+              {siteContent.footer_product_links.map((link, index) => <a href={link.href} key={`${link.label}-${index}`}>{link.label}</a>)}
             </div>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>© 2026 Synexta Pharma. All rights reserved.</p>
+          <p>{siteContent.footer_copyright}</p>
           <div className="footer-legal">
-            <span>Privacy Policy</span>
-            <span>Terms and Conditions</span>
+            {siteContent.footer_legal_links.map((link, index) => link.href
+              ? <a href={link.href} key={`${link.label}-${index}`}>{link.label}</a>
+              : <span key={`${link.label}-${index}`}>{link.label}</span>)}
           </div>
         </div>
       </footer>
-      {selectedProduct && (
+      {selectedProduct && !orderProduct && (
         <div className="product-dialog-backdrop" onMouseDown={(event) => {
           if (event.target === event.currentTarget) setSelectedProduct(null);
         }}>
@@ -433,7 +547,7 @@ function App() {
                 <div className="product-dialog-content neurosyn-dialog-content">
                   <div className="product-dialog-overview">
                     <div className="product-dialog-image">
-                      <img src={productImages[selectedProduct.id]} alt={`${neurosynDetails.name} product pack`} />
+                      <img src={selectedProduct.image || productImages[selectedProduct.id]} alt={`${neurosynDetails.name} product pack`} />
                     </div>
                     <div className="product-dialog-facts">
                       {neurosynDetails.facts.map(([label, value]) => (
@@ -460,7 +574,7 @@ function App() {
                       ))}
                     </div>
                   </section>
-                  <button className="button button-primary product-dialog-action" type="button" onClick={() => chooseProduct(selectedProduct)}>
+                  <button className="button button-primary product-dialog-action" type="button" onClick={() => startOrder(selectedProduct)}>
                     Buy Now <ArrowRight size={16} />
                   </button>
                 </div>
@@ -481,8 +595,8 @@ function App() {
             <div className="product-dialog-content">
               <div className="product-dialog-overview">
                 <div className="product-dialog-image">
-                  {productImages[selectedProduct.id]
-                    ? <img src={productImages[selectedProduct.id]} alt={`${selectedProduct.name} product pack`} />
+                  {selectedProduct.image || productImages[selectedProduct.id]
+                    ? <img src={selectedProduct.image || productImages[selectedProduct.id]} alt={`${selectedProduct.name} product pack`} />
                     : <FlaskConical size={54} aria-hidden="true" />}
                 </div>
                 <div className="product-dialog-facts">
@@ -502,6 +616,54 @@ function App() {
             </div>
               </>
             )}
+          </section>
+        </div>
+      )}
+      {orderProduct && (
+        <div className="product-dialog-backdrop" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setOrderProduct(null);
+        }}>
+          <section className="product-dialog checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+            <header className="product-dialog-header">
+              <button className="product-dialog-close" type="button" aria-label="Close checkout" autoFocus onClick={() => setOrderProduct(null)}>
+                <X size={21} />
+              </button>
+              <div className="product-dialog-tags">
+                <span>{orderConfirmed ? "Order status" : "Checkout"}</span>
+                <span>{orderProduct.name}</span>
+              </div>
+              <h2 id="checkout-title">{orderConfirmed ? "Product ordered!" : "Choose a payment option"}</h2>
+              <p>{orderConfirmed
+                ? `${orderProduct.name} has been added to this demo order.`
+                : `Select how you would like to pay for ${orderProduct.name}.`}</p>
+            </header>
+            <div className="product-dialog-content checkout-content">
+              {orderConfirmed ? (
+                <div className="checkout-confirmation" role="status">
+                  <CheckCircle2 size={48} aria-hidden="true" />
+                  <p>Your order is confirmed in this demo. No payment was collected and no order was sent to a pharmacy.</p>
+                  <button className="button button-primary product-dialog-action" type="button" onClick={() => setOrderProduct(null)}>OK</button>
+                </div>
+              ) : (
+                <>
+                  <fieldset className="payment-options">
+                    <legend>Payment method</legend>
+                    <label className={paymentMethod === "delivery" ? "is-selected" : ""}>
+                      <input type="radio" name="payment-method" value="delivery" checked={paymentMethod === "delivery"} onChange={() => setPaymentMethod("delivery")} />
+                      <span><strong>Pay on delivery</strong><small>Pay when your order arrives</small></span>
+                    </label>
+                    <label className={paymentMethod === "online" ? "is-selected" : ""}>
+                      <input type="radio" name="payment-method" value="online" checked={paymentMethod === "online"} onChange={() => setPaymentMethod("online")} />
+                      <span><strong>Online payment</strong><small>Demo option — no payment will be taken</small></span>
+                    </label>
+                  </fieldset>
+                  <p className="checkout-demo-note">Demo checkout only. Pressing OK will not process a payment or submit a real order.</p>
+                  <button className="button button-primary product-dialog-action" type="button" onClick={() => setOrderConfirmed(true)}>
+                    OK, place demo order <ArrowRight size={16} />
+                  </button>
+                </>
+              )}
+            </div>
           </section>
         </div>
       )}
