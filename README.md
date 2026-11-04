@@ -63,4 +63,14 @@ npm run dev
 
 Keep the sender app password private; do not put it in source control or share it in chat. The SMTP host defaults to Gmail (`smtp.gmail.com`, port `587`, TLS enabled). For another mail provider, also set `EMAIL_HOST`, `EMAIL_PORT`, and `EMAIL_USE_TLS`. If SMTP is not configured or delivery fails, the inquiry is still saved in the admin and the form reports that the notification email was not sent.
 
-For deployment, set `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false` and `DJANGO_ALLOWED_HOSTS`, and provide the SMTP environment variables to the Django service. Configure the production web server to serve the Vite build, proxy `/api/` requests to Django, and serve Django media files from `MEDIA_ROOT` at `/media/`.
+## Vercel and Render deployment
+
+Vercel hosts the frontend; Django must run as a separate backend service. This repository includes a Render Blueprint in `render.yaml` and Vercel rewrites in `vercel.json` for the Render service named `synexta-pharma-api`.
+
+1. In Render, choose **New → Blueprint**, connect this GitHub repository, and deploy the `render.yaml` Blueprint. Set `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, and `DEFAULT_FROM_EMAIL` in the Render service environment before expecting enquiry notifications to arrive.
+2. In the Render service Shell, run `python manage.py createsuperuser` from the `synext_backend` directory to create the admin login.
+3. Redeploy the Vercel project after the Render service is available. The rewrites send `/api/` and `/media/` requests to `https://synexta-pharma-api.onrender.com`; the Django admin is at `https://synexta-pharma-api.onrender.com/admin/`.
+
+The included Render service uses the free plan for testing. Its local SQLite database and uploaded images are ephemeral and can be lost when the service restarts or redeploys; Render's free service may also sleep when idle. Do not use this configuration for production admin content or inquiries without moving to persistent database and file storage. For production, configure durable database/media storage and update the Render and Vercel deployment settings accordingly.
+
+The frontend-only Vercel deployment cannot process enquiries until the Render backend is deployed and healthy. Contact submissions return a clear message if SMTP is not configured or mail delivery fails.
