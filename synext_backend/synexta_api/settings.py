@@ -12,6 +12,8 @@ ALLOWED_HOSTS = [
 ]
 if os.environ.get("RAILWAY_PUBLIC_DOMAIN"):
     ALLOWED_HOSTS.append(os.environ["RAILWAY_PUBLIC_DOMAIN"])
+if "synexta-pharma-site-1.onrender.com" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("synexta-pharma-site-1.onrender.com")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
