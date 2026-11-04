@@ -1,6 +1,20 @@
 from django.db import models
 
 
+class Product(models.Model):
+    id = models.SlugField(primary_key=True, max_length=120)
+    name = models.CharField(max_length=120)
+    description = models.TextField(max_length=2000)
+    category = models.CharField(max_length=120, blank=True)
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "name"]
+
+    def __str__(self):
+        return self.name
+
+
 class ContactInquiry(models.Model):
     name = models.CharField(max_length=120)
     email = models.EmailField(max_length=254)

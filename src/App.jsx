@@ -31,6 +31,7 @@ import cefixaImage from "./images/Container (10).png";
 import betasynImage from "./images/Container (11).png";
 import pregaImage from "./images/Container (12).png";
 import pregaForteImage from "./images/Container (13).png";
+import brandLogo from "./images/logo.png";
 
 const productImages = {
   "neurosyn-m": neurosynImage,
@@ -42,15 +43,54 @@ const productImages = {
   "pregasyn-forte": pregaForteImage,
 };
 
+const neurosynDetails = {
+  category: "Neurological Health",
+  formulation: "RX PRESCRIPTION FORMULATION",
+  name: "NEUROSYN-M™",
+  composition: "Alpha Lipoic Acid 200 mg + Benfotiamine 100 mg + Folic Acid 1.5 mg + Inositol 100 mg + Methylcobalamin 1000 mcg + Vitamin B6 5 mg",
+  facts: [
+    ["Form & Pack", "Tablets • 10×10 Alu-Alu"],
+    ["Indication Segment", "Neuropathy & Neuroprotection"],
+    ["Shelf Life & Storage", "24 Mos • Below 25°C"],
+    ["Compliance", "WHO-GMP Certified"],
+  ],
+  indications: [
+    "Diabetic Peripheral Neuropathy",
+    "Axon & Myelin Sheath Regeneration",
+    "Neuronal Vascular & Metabolic Care",
+    "Paresthesia & Hyperalgesia Relief",
+  ],
+  actives: [
+    ["200 mg", "Alpha Lipoic Acid"],
+    ["1000 mcg", "Methylcobalamin"],
+    ["100 mg", "Benfotiamine"],
+  ],
+};
+
 const initialProducts = [
-  { id: "neurosyn-m", name: "Neurosyn-M", description: "Alpha Lipoic Acid 200mg + Benfotimine 100mg + Folic Acid 1.5 mg + Inosital 100mg + Methilcobalamin 1000 mcg + vitamin B6 3mg.", category: "Tablets" },
-  { id: "pantosyn-20-40", name: "Pantosyn 20/40", description: "Pantoprazole 20mg/40mg Tablets", category: "Tablets" },
-  { id: "trypsyn-r", name: "Trypsyn-R", description: "Bromelin 90mg + Rutoside Trihydrate 100mg + Trypsin 48mg", category: "Tablets" },
-  { id: "cefixa-200", name: "Cefixa 200", description: "Cefixime 200mg Tablets", category: "Tablets" },
-  { id: "betasyn-8-16", name: "Betasyn 8/16", description: "Betahistine 8mg/16mg Tablets", category: "Tablets" },
-  { id: "pregasyn", name: "Pregasyn", description: "Pregabalin 75mg + Methylcobalamin 1500mcg", category: "Capsules" },
-  { id: "pregasyn-forte", name: "Pregasyn Forte", description: "Methylcobalamin 750mcg + Pregabalin 50mg", category: "Capsules" },
+  { id: "neurosyn-m", name: "Neurosyn-M", description: "Alpha Lipoic Acid 200 mg + Benfotiamine 100 mg + Folic Acid 1.5 mg + Inositol 100 mg + Methylcobalamin 1000 mcg + Vitamin B6 3 mg", category: "Neurological Health" },
+  { id: "pantosyn-20-40", name: "Pantosyn 20/40", description: "Pantoprazole 20 mg / 40 mg Tablets", category: "Gastrointestinal Health" },
+  { id: "trypsyn-r", name: "Trypsyn-R", description: "Bromelain 90 mg + Rutoside Trihydrate 100 mg + Trypsin 48 mg", category: "Musculoskeletal Support" },
+  { id: "cefixa-200", name: "Cefixa 200", description: "Cefixime 200 mg Tablets", category: "Other Formulations" },
+  { id: "betasyn-8-16", name: "Betasyn 8/16", description: "Betahistine 8 mg / 16 mg Tablets", category: "Other Formulations" },
+  { id: "pregasyn", name: "Pregasyn", description: "Pregabalin 75 mg + Methylcobalamin 1500 mcg", category: "Neurological Health" },
+  { id: "pregasyn-forte", name: "Pregasyn Forte", description: "Methylcobalamin 750 mcg + Pregabalin 50 mg", category: "Neurological Health" },
 ];
+
+function formatProductCardName(product) {
+  const name = product.name.toUpperCase();
+  const trademarkPlacements = {
+    "neurosyn-m": [/-M$/, "-M™"],
+    "pantosyn-20-40": [/ 20\/40$/, "™ 20/40"],
+    "trypsyn-r": [/-R$/, "-R™"],
+    "cefixa-200": [/ 200$/, "™ 200"],
+    "betasyn-8-16": [/ 8\/16$/, "™ 8/16"],
+    pregasyn: [/$/, "™"],
+    "pregasyn-forte": [/ FORTE$/, "™ FORTE"],
+  };
+  const placement = trademarkPlacements[product.id];
+  return placement ? name.replace(placement[0], placement[1]) : `${name}™`;
+}
 
 const principles = [
   { icon: CircleArrowRight, title: "Commitment to Quality", text: "Quality guides every product we bring to market." },
@@ -69,19 +109,31 @@ const commitments = [
 function Brand({ light = false }) {
   return (
     <a className={`brand${light ? " brand-light" : ""}`} href="#home" aria-label="Synexta Pharma home">
-      <span className="brand-mark" aria-hidden="true">
-        {light ? <>S<span className="brand-mark-dot">.</span></> : <Dna size={20} strokeWidth={2.2} />}
-      </span>
-      <span className="brand-name">{light ? <>Synexta<span>PHARMA</span></> : <>synexta<span>pharma</span></>}</span>
+      <img className="brand-logo" src={brandLogo} alt="Synexta Pharma" />
     </a>
   );
 }
 
 function App() {
   const [products, setProducts] = useState(initialProducts);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [formState, setFormState] = useState({ name: "", email: "", phone: "", topic: "", message: "" });
   const [submitState, setSubmitState] = useState({ status: "idle", message: "" });
+
+  useEffect(() => {
+    if (!selectedProduct) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setSelectedProduct(null);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [selectedProduct]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -91,7 +143,7 @@ function App() {
         return response.json();
       })
       .then((data) => {
-        if (Array.isArray(data.products) && data.products.length > 0) setProducts(data.products);
+        if (Array.isArray(data.products)) setProducts(data.products);
       })
       .catch((error) => {
         if (error.name !== "AbortError") console.info("Showing the local product catalogue.");
@@ -99,8 +151,9 @@ function App() {
     return () => controller.abort();
   }, []);
 
-  function chooseProduct(name) {
-    setFormState((current) => ({ ...current, topic: `Product enquiry: ${name}` }));
+  function chooseProduct(product) {
+    setFormState((current) => ({ ...current, topic: `Product enquiry: ${product.name}` }));
+    setSelectedProduct(null);
     document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
   }
 
@@ -156,14 +209,13 @@ function App() {
         <section className="hero" id="home" style={{ "--hero-image": `url("${heroImage}")` }}>
           <div className="hero-inner page-width">
             <div className="hero-copy">
-              <span className="eyebrow"><span className="eyebrow-dot" /> TRUSTED PHARMACEUTICAL SOLUTIONS</span>
-              <h1>Quality medicines.<br /><span>Trusted care.</span></h1>
+              <span className="eyebrow hero-eyebrow"> TRUSTED PHARMACEUTICAL SOLUTIONS</span>
+              <h1><span className="hero-heading-line">Quality medicines.</span><span>Trusted care.</span></h1>
               <p>Commited to delivering quality-driven pharmaceutical formulations that support healthcare proffessionals and better patient care.</p>
               <div className="hero-actions">
                 <a className="button button-primary" href="#products">Explore our products <ArrowRight size={16} /></a>
                 <a className="button button-quiet" href="#contact">Contact our team</a>
               </div>
-              <div className="hero-note"><CheckCircle2 size={16} /> Quality-minded at every stage</div>
             </div>
           </div>
           <div className="hero-index" aria-hidden="true">01 <span /> 04</div>
@@ -173,18 +225,17 @@ function App() {
           <div className="intro-grid page-width">
             <div className="intro-image-wrap">
               <img src={labImage} alt="Researcher working with a laboratory microscope" />
-              <div className="image-caption"><span className="caption-icon"><Microscope size={17} /></span><span>Curiosity drives better science.</span></div>
             </div>
             <div className="intro-copy">
               <span className="eyebrow">ABOUT SYNEXTA PHARMA</span>
-              <h2>Committed to quality.<br /><span>Focused on care.</span></h2>
+              <h2>Committed to quality. Focused on care.</h2>
               <p className="body-lead">Synexta Pharma offers a range of pharmaceutical formulations designed to support diverse healthcare needs. Our approach is built on quality, transparency and a genuine commitment to trusted healthcare solutions.</p>
             
             <div className="difference-points">
                 {[
-                  [HeartPulse, "Quality first", "Formulation selevted and presented with a focus on quality."],
-                  [ClipboardCheck, "Product Clarity", "Exact names, strengths and compositions- nothing hidden."],
-                  [Dna, "Responsible communication", "Accurate informationwithout exaggerated claims"],
+                  [HeartPulse, "Quality-Focused Approach", "Every Formulation is presented with care, clarity and consistency."],
+                  [ClipboardCheck, "Reliable Pharmaceutical solutions", "A focused portfolio built around everyday healthcare needs."],
+                  [Dna, "Healthcare-Centered Commitment", "We work along side healthcare proffessionals for better patient care."],
                 ].map(([Icon, title, text]) => (
                   <div className="difference-point" key={title}>
                     <span className="difference-icon"><Icon size={18} /></span>
@@ -199,22 +250,22 @@ function App() {
         <section className="products-section section-pad" id="products">
           <div className="page-width">
             <div className="section-heading">
-              <span className="eyebrow">Our portfolio</span>
+              <span className="aqua">OUR PORTFOLIO</span>
               <h2>Our pharmaceutical products</h2>
-              <p>Explore our range of pharmaceutical formulations developed to support diverse healthcare needs.</p>
+              <p className="portfolio-description">Explore our range of pharmaceutical formulations developed to support diverse healthcare needs.</p>
             </div>
             <div className="product-grid">
               {products.map((product, index) => (
                 <article className="product-card" key={product.id} style={{ "--card-index": index }}>
                   <div className="product-art">
                     {productImages[product.id] ? <img src={productImages[product.id]} alt={`${product.name} product pack`} /> : <div className="product-placeholder"><FlaskConical size={36} /></div>}
-                    <span className="product-number">0{index + 1}</span>
                   </div>
                   <div className="product-info">
                     <span className="product-category">{product.category || "Pharmaceuticals"}</span>
-                    <h3>{product.name}</h3>
+                    <h3>{formatProductCardName(product)}</h3>
+                    <span className="product-accent-line" aria-hidden="true" />
                     <p>{product.description}</p>
-                    <button className="product-link" type="button" onClick={() => chooseProduct(product.name)}>View Product <ArrowUpRight size={14} /></button>
+                    <button className="product-link" type="button" onClick={() => setSelectedProduct(product)}>View Product <ArrowRight size={18} /></button>
                   </div>
                 </article>
               ))}
@@ -226,18 +277,38 @@ function App() {
           <div className="page-width">
             <div className="section-heading section-heading-light">
               <span className="eyebrow">Quality Assurance</span>
-              <h2>Quality at the Heart of Every Formulation</h2>
             </div>
-            <h3 className="commitments-heading">Our Commitments</h3>
             <div className="principle-grid">
-              {principles.map(({ icon: Icon, title, text }) => (
-                <article className="principle" key={title} tabIndex={0}>
-                  <span className="principle-icon"><Icon size={23} strokeWidth={2} /></span>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </article>
-              ))}
+              {commitments.map((commitment, index) => {
+                const { icon: Icon, text } = principles[index];
+                return (
+                  <article className="principle" key={commitment} tabIndex={0}>
+                    <span className="principle-icon"><Icon size={18} strokeWidth={2} /></span>
+                    <h3>{commitment}</h3>
+                    <p>{text}</p>
+                  </article>
+                );
+              })}
             </div>
+          </div>
+        </section>
+
+        <section className="commitments-section section-pad" aria-labelledby="commitments-heading">
+          <div className="page-width">
+            <h2 className="commitments-heading" id="commitments-heading">OUR COMMITMENTS</h2>
+            <h2 className="commitments-subheading">Quality at the Heart of Every Formulation</h2>
+              <div className="principle-grid">
+                {commitments.map((commitment, index) => {
+                  const { icon: Icon, text } = principles[index];
+                  return (
+                    <article className="principle" key={commitment} tabIndex={0}>
+                      <span className="principle-icon"><Icon size={18} strokeWidth={2} /></span>
+                      <h3>{commitment}</h3>
+                      <p>{text}</p>
+                    </article>
+                  );
+                })}
+              </div>
           </div>
         </section>
 
@@ -263,7 +334,6 @@ function App() {
             </div>
             <div className="difference-image">
               <img src={researchImage} alt="Scientist carefully pipetting a sample in a laboratory" />
-              <div className="image-stamp"><span>Science</span><strong>with care</strong><span>at every step</span></div>
             </div>
           </div>
         </section>
@@ -271,11 +341,11 @@ function App() {
         <section className="contact-banner" style={{ "--contact-image": `url("${contactImage}")` }}>
           <div className="contact-banner-inner page-width">
             <span className="eyebrow">LET'S CONNECT</span>
-            <h2><span>Let's connect for better healthcare<br></br> solutions.</span></h2>
-            <p>Connect with our team to learn more about our pharmaceutical product<br></br> portfolio and business enquiries.</p>
+            <h2>Let's Connect for Better Healthcare Solutions</h2>
+            <p>Connect with our team to learn more about our pharmaceutical product portfolio and business enquiries.</p>
             <div className="contact-banner-actions">
               <a className="button button-primary" href="#contact">Contact Us <ArrowRight size={16} /></a>
-              <a className="button button-primary" href="#product">Explore Us </a>
+              <a className="button button-quiet" href="#products">Explore Products</a>
             </div>
           </div>
         </section>
@@ -334,8 +404,107 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="footer-bottom page-width" aria-hidden="true" />
+        <div className="footer-bottom">
+          <p>© 2026 Synexta Pharma. All rights reserved.</p>
+          <div className="footer-legal">
+            <span>Privacy Policy</span>
+            <span>Terms and Conditions</span>
+          </div>
+        </div>
       </footer>
+      {selectedProduct && (
+        <div className="product-dialog-backdrop" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setSelectedProduct(null);
+        }}>
+          <section className="product-dialog" role="dialog" aria-modal="true" aria-labelledby="product-dialog-title">
+            {selectedProduct.id === "neurosyn-m" ? (
+              <>
+                <header className="product-dialog-header">
+                  <div className="product-dialog-tags">
+                    <span>{neurosynDetails.category}</span>
+                    <span>{neurosynDetails.formulation}</span>
+                  </div>
+                  <button className="product-dialog-close" type="button" aria-label="Close product details" autoFocus onClick={() => setSelectedProduct(null)}>
+                    <X size={21} />
+                  </button>
+                  <h2 id="product-dialog-title">{neurosynDetails.name}</h2>
+                  <p>{neurosynDetails.composition}</p>
+                </header>
+                <div className="product-dialog-content neurosyn-dialog-content">
+                  <div className="product-dialog-overview">
+                    <div className="product-dialog-image">
+                      <img src={productImages[selectedProduct.id]} alt={`${neurosynDetails.name} product pack`} />
+                    </div>
+                    <div className="product-dialog-facts">
+                      {neurosynDetails.facts.map(([label, value]) => (
+                        <div key={label}><span>{label}</span><strong>{value}</strong></div>
+                      ))}
+                    </div>
+                  </div>
+                  <section className="neurosyn-indications">
+                    <h3>KEY THERAPEUTIC INDICATIONS</h3>
+                    <ul>
+                      {neurosynDetails.indications.map((indication) => (
+                        <li key={indication}><FileText size={16} aria-hidden="true" />{indication}</li>
+                      ))}
+                    </ul>
+                  </section>
+                  <section className="neurosyn-actives">
+                    <div className="neurosyn-actives-heading">
+                      <h3>KEY ACTIVE ACTIVES</h3>
+                      <span>Standardized Pharmacopoeial Grade</span>
+                    </div>
+                    <div className="neurosyn-actives-grid">
+                      {neurosynDetails.actives.map(([amount, active]) => (
+                        <div key={active}><strong>{amount}</strong><span>{active}</span></div>
+                      ))}
+                    </div>
+                  </section>
+                  <button className="button button-primary product-dialog-action" type="button" onClick={() => chooseProduct(selectedProduct)}>
+                    Buy Now <ArrowRight size={16} />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+            <header className="product-dialog-header">
+              <div className="product-dialog-tags">
+                <span>{selectedProduct.category || "Pharmaceuticals"}</span>
+                <span>Product information</span>
+              </div>
+              <button className="product-dialog-close" type="button" aria-label="Close product details" autoFocus onClick={() => setSelectedProduct(null)}>
+                <X size={21} />
+              </button>
+              <h2 id="product-dialog-title">{selectedProduct.name}</h2>
+              <p>{selectedProduct.description}</p>
+            </header>
+            <div className="product-dialog-content">
+              <div className="product-dialog-overview">
+                <div className="product-dialog-image">
+                  {productImages[selectedProduct.id]
+                    ? <img src={productImages[selectedProduct.id]} alt={`${selectedProduct.name} product pack`} />
+                    : <FlaskConical size={54} aria-hidden="true" />}
+                </div>
+                <div className="product-dialog-facts">
+                  <div><span>Category</span><strong>{selectedProduct.category || "Pharmaceuticals"}</strong></div>
+                  <div><span>Product</span><strong>{selectedProduct.name}</strong></div>
+                  <div><span>Product information</span><strong>Contact our team for details</strong></div>
+                  <div><span>Use</span><strong>Refer to the product packaging and healthcare professional guidance</strong></div>
+                </div>
+              </div>
+              <div className="product-dialog-description">
+                <h3>PRODUCT DESCRIPTION</h3>
+                <p>{selectedProduct.description}</p>
+              </div>
+              <button className="button button-primary product-dialog-action" type="button" onClick={() => chooseProduct(selectedProduct)}>
+                Enquire About This Product <ArrowRight size={16} />
+              </button>
+            </div>
+              </>
+            )}
+          </section>
+        </div>
+      )}
     </>
   );
 }

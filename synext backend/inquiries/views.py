@@ -6,23 +6,21 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import ContactInquiry
-
-
-PRODUCTS = [
-    {"id": "neurosyn-m", "name": "Neurosyn-M", "description": "A carefully formulated medicine produced with quality at every step.", "category": "Tablets"},
-    {"id": "pantosyn-20-40", "name": "Pantosyn 20/40", "description": "A consistent, quality-led formulation for your healthcare portfolio.", "category": "Tablets"},
-    {"id": "trypsyn-r", "name": "Trypsyn-R", "description": "Thoughtfully developed and manufactured to defined specifications.", "category": "Tablets"},
-    {"id": "cefixa-200", "name": "Cefixa 200", "description": "A quality-assured formulation supported by careful batch review.", "category": "Tablets"},
-    {"id": "betasyn-8-16", "name": "Betasyn 8/16", "description": "Reliable product standards, supported by disciplined processes.", "category": "Tablets"},
-    {"id": "pregasyn", "name": "Pregasyn", "description": "A thoughtfully developed formulation with a focus on consistency.", "category": "Capsules"},
-    {"id": "pregasyn-forte", "name": "Pregasyn Forte", "description": "Made with care and reviewed against defined quality standards.", "category": "Capsules"},
-]
+from .models import ContactInquiry, Product
 
 
 @require_GET
 def products(request):
-    return JsonResponse({"products": PRODUCTS})
+    catalogue = [
+        {
+            "id": product.id,
+            "name": product.name,
+            "description": product.description,
+            "category": product.category,
+        }
+        for product in Product.objects.all()
+    ]
+    return JsonResponse({"products": catalogue})
 
 
 @csrf_exempt

@@ -33,6 +33,8 @@ python ".\synext backend\manage.py" createsuperuser
 
 The admin site is at `http://127.0.0.1:8000/admin/`. Contact inquiries are stored in `backend/db.sqlite3` and can be reviewed there.
 
+To manage the website catalogue, sign in to the admin site and open **Products**. Add products with a name, description, category and display order; the ID is generated from the name and can be adjusted if needed. Edit or delete products from the same list. Catalogue changes are reflected on the website when it reloads.
+
 ## API
 
 - `GET /api/products/` returns the product catalogue.
