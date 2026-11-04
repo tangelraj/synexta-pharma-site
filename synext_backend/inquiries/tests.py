@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.test import override_settings
 from PIL import Image
 
-from .models import ContactInquiry, Product, SiteContent
+from .models import ContactInquiry, Product, SiteContent, SiteContentItem
 
 
 class SiteContentApiTests(TestCase):
@@ -24,6 +24,49 @@ class SiteContentApiTests(TestCase):
         self.assertEqual(response.json()["nav_links"][0]["label"], "Home")
         self.assertIn("hero_image", response.json())
         self.assertIsNone(response.json()["hero_image"])
+
+    def test_returns_individually_editable_content_items(self):
+        response = self.client.get("/api/content/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["nav_links"][0], {"label": "Home", "href": "#home"})
+        self.assertEqual(
+            response.json()["about_points"][0],
+            {
+                "icon": "care",
+                "title": "Quality-Focused Approach",
+                "text": "Every Formulation is presented with care, clarity and consistency.",
+            },
+        )
+        self.assertEqual(response.json()["footer_legal_links"][0], {"label": "Privacy Policy"})
+
+        nav_link = SiteContentItem.objects.get(
+            section=SiteContentItem.Section.NAV_LINK,
+            sort_order=0,
+        )
+        nav_link.label = "Home page"
+        nav_link.save()
+        updated_response = self.client.get("/api/content/")
+        self.assertEqual(updated_response.json()["nav_links"][0]["label"], "Home page")
+
+    def test_site_content_admin_displays_row_editors(self):
+        from django.contrib.auth import get_user_model
+        from django.urls import reverse
+
+        user = get_user_model().objects.create_superuser(
+            username="content-admin",
+            email="admin@example.com",
+            password="test-password",
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("admin:inquiries_sitecontent_change", args=("default",)))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Navigation links")
+        self.assertContains(response, "About points")
+        self.assertContains(response, "Footer quick links")
+        self.assertContains(response, "name=\"items-0-label\"")
 
     def test_rejects_non_get_method(self):
         response = self.client.post("/api/content/")

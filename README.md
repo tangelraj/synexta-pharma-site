@@ -35,7 +35,7 @@ The admin site is at `http://127.0.0.1:8000/admin/`. Contact inquiries are store
 
 To manage the website catalogue, sign in to the admin site and open **Products**. Add products with a name, description, category and display order; the ID is generated from the name and can be adjusted if needed. Edit or delete products from the same list.
 
-To edit the navigation bar, About section, Quality Assurance section, Commitments section, Why Choose Us section, or footer, open **Website content**. This is a single shared record; edits are reflected on the website when it reloads. Repeating navigation, footer, or feature-card items are edited as JSON arrays. Each section in the admin includes the required object shape and supported icon keys; keep the JSON valid when editing these lists.
+To edit the navigation bar, About section, Quality Assurance section, Commitments section, Why Choose Us section, or footer, open **Website content**. This is a single shared record; edits are reflected on the website when it reloads. Repeating items appear as individual rows: navigation and footer links have label and destination fields, while About, Quality Assurance, Commitments, and Why Choose Us points have icon, title, and text fields. Use the order field to arrange rows.
 
 To change the site images, use the image upload fields on **Website content** for the logo, hero, About, Quality Assurance/Commitments background, Why Choose Us, and contact banner. To change a product image, open that product under **Products** and upload an image. Leaving an image empty uses the bundled site default (or, for products, the original product image). Uploads are stored under `synext_backend/media/`; back up and persist this folder along with the database.
 
@@ -69,7 +69,7 @@ Vercel hosts the frontend; Django must run as a separate backend service. This r
 
 1. In Render, choose **New → Blueprint**, connect this GitHub repository, and deploy the `render.yaml` Blueprint. Set `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, and `DEFAULT_FROM_EMAIL` in the Render service environment before expecting enquiry notifications to arrive.
 2. In the Render service Shell, run `python manage.py createsuperuser` from the `synext_backend` directory to create the admin login.
-3. Redeploy the Vercel project after the Render service is available. The rewrites send `/api/` and `/media/` requests to `https://synexta-pharma-api.onrender.com`; the Django admin is at `https://synexta-pharma-api.onrender.com/admin/`.
+3. Redeploy the Vercel project after the Render service is available. The rewrites send `/api/` and `/media/` requests to `https://synexta-pharma-site-1.onrender.com`; the Django admin is at `https://synexta-pharma-site-1.onrender.com/admin/`.
 
 The included Render service uses the free plan for testing. Its local SQLite database and uploaded images are ephemeral and can be lost when the service restarts or redeploys; Render's free service may also sleep when idle. Do not use this configuration for production admin content or inquiries without moving to persistent database and file storage. For production, configure durable database/media storage and update the Render and Vercel deployment settings accordingly.
 

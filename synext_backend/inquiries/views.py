@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import ContactInquiry, Product, SiteContent
+from .models import ContactInquiry, Product, SiteContent, SiteContentItem
 
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,6 @@ def site_content(request):
         return JsonResponse({"error": "Website content has not been configured."}, status=503)
 
     fields = (
-        "nav_links",
         "logo_image",
         "hero_image",
         "about_image",
@@ -35,22 +34,15 @@ def site_content(request):
         "about_eyebrow",
         "about_title",
         "about_body",
-        "about_points",
         "quality_eyebrow",
-        "quality_points",
         "commitments_title",
         "commitments_subtitle",
-        "commitments_points",
         "why_eyebrow",
         "why_title",
         "why_body",
-        "why_points",
         "footer_tagline",
-        "footer_quick_links",
         "footer_products_heading",
-        "footer_product_links",
         "footer_copyright",
-        "footer_legal_links",
     )
     data = {field: getattr(content, field) for field in fields if not field.endswith("_image")}
     data.update({
@@ -58,6 +50,27 @@ def site_content(request):
         for field in fields
         if field.endswith("_image")
     })
+    item_fields = {
+        "nav_links": (SiteContentItem.Section.NAV_LINK, ("label", "href")),
+        "about_points": (SiteContentItem.Section.ABOUT_POINT, ("icon", "title", "text")),
+        "quality_points": (SiteContentItem.Section.QUALITY_POINT, ("icon", "title", "text")),
+        "commitments_points": (SiteContentItem.Section.COMMITMENT_POINT, ("icon", "title", "text")),
+        "why_points": (SiteContentItem.Section.WHY_POINT, ("icon", "title", "text")),
+        "footer_quick_links": (SiteContentItem.Section.FOOTER_QUICK_LINK, ("label", "href")),
+        "footer_product_links": (SiteContentItem.Section.FOOTER_PRODUCT_LINK, ("label", "href")),
+        "footer_legal_links": (SiteContentItem.Section.FOOTER_LEGAL_LINK, ("label", "href")),
+    }
+    items = content.items.order_by("sort_order", "pk")
+    for output_field, (section, item_keys) in item_fields.items():
+        data[output_field] = [
+            {
+                key: getattr(item, key)
+                for key in item_keys
+                if key != "href" or item.href
+            }
+            for item in items
+            if item.section == section
+        ]
     return JsonResponse(data)
 
 

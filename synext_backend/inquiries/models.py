@@ -24,28 +24,20 @@ class SiteContent(models.Model):
     quality_background_image = models.ImageField(upload_to="site/", blank=True)
     why_image = models.ImageField(upload_to="site/", blank=True)
     contact_background_image = models.ImageField(upload_to="site/", blank=True)
-    nav_links = models.JSONField(default=list)
     nav_cta_label = models.CharField(max_length=120, default="Explore Products")
     nav_cta_href = models.CharField(max_length=200, default="#products")
     about_eyebrow = models.CharField(max_length=120, default="ABOUT SYNEXTA PHARMA")
     about_title = models.CharField(max_length=200, default="Committed to quality. Focused on care.")
     about_body = models.TextField(default="")
-    about_points = models.JSONField(default=list)
     quality_eyebrow = models.CharField(max_length=120, default="Quality Assurance")
-    quality_points = models.JSONField(default=list)
     commitments_title = models.CharField(max_length=120, default="OUR COMMITMENTS")
     commitments_subtitle = models.CharField(max_length=200, default="Quality at the Heart of Every Formulation")
-    commitments_points = models.JSONField(default=list)
     why_eyebrow = models.CharField(max_length=120, default="WHY CHOOSE US")
     why_title = models.CharField(max_length=200, default="Why choose Synexta Pharma?")
     why_body = models.TextField(default="")
-    why_points = models.JSONField(default=list)
     footer_tagline = models.CharField(max_length=200, default="Quality Medicines. Trusted Care.")
-    footer_quick_links = models.JSONField(default=list)
     footer_products_heading = models.CharField(max_length=120, default="Products")
-    footer_product_links = models.JSONField(default=list)
     footer_copyright = models.CharField(max_length=200, default="© 2026 Synexta Pharma. All rights reserved.")
-    footer_legal_links = models.JSONField(default=list)
 
     class Meta:
         verbose_name = "website content"
@@ -53,6 +45,42 @@ class SiteContent(models.Model):
 
     def __str__(self):
         return "Website content"
+
+
+class SiteContentItem(models.Model):
+    class Section(models.TextChoices):
+        NAV_LINK = "nav_link", "Navigation links"
+        ABOUT_POINT = "about_point", "About points"
+        QUALITY_POINT = "quality_point", "Quality assurance points"
+        COMMITMENT_POINT = "commitment_point", "Commitment points"
+        WHY_POINT = "why_point", "Why choose us points"
+        FOOTER_QUICK_LINK = "footer_quick_link", "Footer quick links"
+        FOOTER_PRODUCT_LINK = "footer_product_link", "Footer product links"
+        FOOTER_LEGAL_LINK = "footer_legal_link", "Footer legal links"
+
+    class Icon(models.TextChoices):
+        QUALITY = "quality", "Quality"
+        TRANSPARENCY = "transparency", "Transparency"
+        STANDARDS = "standards", "Standards"
+        SUPPORT = "support", "Support"
+        CARE = "care", "Care"
+        CLARITY = "clarity", "Clarity"
+        ENGAGEMENT = "engagement", "Engagement"
+
+    content = models.ForeignKey(SiteContent, on_delete=models.CASCADE, related_name="items")
+    section = models.CharField(max_length=32, choices=Section.choices)
+    sort_order = models.PositiveIntegerField(default=0)
+    label = models.CharField(max_length=200, blank=True)
+    href = models.CharField(max_length=300, blank=True)
+    icon = models.CharField(max_length=32, choices=Icon.choices, blank=True)
+    title = models.CharField(max_length=200, blank=True)
+    text = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["sort_order", "pk"]
+
+    def __str__(self):
+        return self.label or self.title or self.get_section_display()
 
 
 class ContactInquiry(models.Model):
