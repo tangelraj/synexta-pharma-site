@@ -74,11 +74,3 @@ Vercel hosts the frontend; Django must run as a separate backend service. This r
 The included Render service uses the free plan for testing. Its local SQLite database and uploaded images are ephemeral and can be lost when the service restarts or redeploys; Render's free service may also sleep when idle. Do not use this configuration for production admin content or inquiries without moving to persistent database and file storage. For production, configure durable database/media storage and update the Render and Vercel deployment settings accordingly.
 
 The frontend-only Vercel deployment cannot process enquiries until the Render backend is deployed and healthy. Contact submissions return a clear message if SMTP is not configured or mail delivery fails.
-
-## Railway backend
-
-The repository also includes `railway.json` for deploying the Django API on Railway. Create a Railway service from this GitHub repository with the repository root as its service root. The config installs Python requirements, applies migrations, starts Gunicorn bound to Railway's `$PORT`, and checks `/api/products/`. Railway supplies `RAILWAY_PUBLIC_DOMAIN`, which Django adds to `ALLOWED_HOSTS`.
-
-In the Railway service Variables, set a unique `DJANGO_SECRET_KEY`. Add `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, and `DEFAULT_FROM_EMAIL` if enquiry email notifications are needed. The current SQLite database and uploaded images are stored on the service filesystem; attach and configure persistent storage before relying on admin data, uploads, or inquiries across deploys.
-
-After Railway creates a public domain, update the API and media destinations in `vercel.json` to that exact domain and redeploy Vercel. The currently committed Vercel rewrite still targets the Render service.
